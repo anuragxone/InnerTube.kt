@@ -1,4 +1,4 @@
-package com.anuragxone
+package com.anuragxone.innertube
 
 fun main() {
     println("Hello World!")
