@@ -26,7 +26,7 @@ object Constants {
     object OAUTH {
         object REGEX {
             val TV_SCRIPT = Regex("""<script\s+id="base-js"\s+src="([^"]+)"[^>]*></script>""")
-            val CLIENT_IDENTITY = Regex("""clientId:"(?<client_id>[^"]+)",[^"]*?:"(?<client_secret>[^"]+)"""")
+            val CLIENT_IDENTITY = Regex("""clientId:"(?<clientId>[^"]+)",[^"]*?:"(?<clientSecret>[^"]+)"""")
         }
     }
 
