@@ -1,5 +1,129 @@
 package com.anuragxone.innertube.core
 
+import com.anuragxone.innertube.utils.Constants
+import com.anuragxone.innertube.utils.DeviceCategory
+
+enum class ClientType(val value: String) {
+    WEB("WEB"),
+    MWEB("MWEB"),
+    KIDS("WEB_KIDS"),
+    MUSIC("WEB_REMIX"),
+    IOS("iOS"),
+    ANDROID("ANDROID"),
+    ANDROID_MUSIC("ANDROID_MUSIC"),
+    ANDROID_CREATOR("ANDROID_CREATOR"),
+    TV("TVHTML5"),
+    TV_EMBEDDED("TVHTML5_SIMPLY_EMBEDDED_PLAYER"),
+    WEB_EMBEDDED("WEB_EMBEDDED_PLAYER"),
+    WEB_CREATOR("WEB_CREATOR")
+
+//    companion object {
+//        fun fromString(value: String): ClientType? {
+//            return values().find { it.value == value }
+//        }
+//    }
+}
+
+data class Context(
+    val client: Client,
+    val user: User,
+    val thirdParty: ThirdParty? = null,
+    val request: Request? = null
+) {
+    data class Client(
+        val hl: String,
+        val gl: String,
+        val remoteHost: String? = null,
+        val screenDensityFloat: Float? = null,
+        val screenHeightPoints: Int? = null,
+        val screenPixelDensity: Float? = null,
+        val screenWidthPoints: Int? = null,
+        val visitorData: String? = null,
+        val clientName: String,
+        val clientVersion: String,
+        val clientScreen: String? = null,
+        val androidSdkVersion: Int? = null,
+        val osName: String,
+        val osVersion: String,
+        val platform: String,
+        val clientFormFactor: String,
+        val userInterfaceTheme: String? = null,
+        val timeZone: String,
+        val userAgent: String? = null,
+        val browserName: String? = null,
+        val browserVersion: String? = null,
+        val originalUrl: String? = null,
+        val deviceMake: String,
+        val deviceModel: String,
+        val utcOffsetMinutes: Int,
+        val mainAppWebInfo: MainAppWebInfo? = null,
+        val memoryTotalKbytes: String? = null,
+        val configInfo: ConfigInfo? = null,
+        val kidsAppInfo: KidsAppInfo? = null
+    ) {
+        data class MainAppWebInfo(
+            val graftUrl: String = "one",
+            val pwaInstallabilityStatus: String,
+            val webDisplayMode: String,
+            val isWebNativeShareAvailable: Boolean
+        )
+
+        data class ConfigInfo(
+            val appInstallData: String
+        )
+
+        data class KidsAppInfo(
+            val categorySettings: CategorySettings,
+            val contentSettings: ContentSettings
+        ) {
+            data class CategorySettings(
+                val enabledCategories: List<String>
+            )
+
+            data class ContentSettings(
+                val corpusPreference: String,
+                val kidsNoSearchMode: String
+            )
+        }
+    }
+
+    data class User(
+        val enableSafetyMode: Boolean,
+        val lockedSafetyMode: Boolean,
+        val onBehalfOfUser: String? = null
+    )
+
+    data class ThirdParty(
+        val embedUrl: String
+    )
+
+    data class Request(
+        val useSsl: Boolean,
+        val internalExperimentFlags: List<Any>
+    )
+}
+
+data class ContextData(
+    val hl: String,
+    val gl: String,
+    val remoteHost: String? = null,
+    val visitorData: String,
+    val clientName: String,
+    val clientVersion: String,
+    val osName: String,
+    val osVersion: String,
+    val deviceCategory: String,
+    val timeZone: String,
+    val enableSafetyMode: Boolean,
+    val browserName: String? = null,
+    val browserVersion: String? = null,
+    val appInstallData: String? = null,
+    val deviceMake: String,
+    val deviceModel: String,
+    val onBehalfOfUser: String? = null
+)
+
+
 data class SessionOptions(
 
 //    val lang: String? = null,
@@ -21,6 +145,32 @@ data class SessionOptions(
 
 )
 
+data class SessionData(
+    val context: Context,
+    val apiKey: String,
+    val apiVersion: String
+)
+
+data class SWSessionData(
+    val contextData: ContextData,
+    val apiKey: String,
+    val apiVersion: String
+)
+
+data class SessionArgs(
+    val lang: String,
+    val location: String,
+    val timeZone: String,
+    val deviceCategory: DeviceCategory,
+    val clientName: ClientType,
+    val enableSafetyMode: Boolean,
+    val visitorData: String,
+    val onBehalfOfUser: String?
+)
+
+const val TAG = "Session"
+
+
 
 class Session(
     val context: Context,
@@ -39,14 +189,6 @@ class Session(
     val oauth: OAuth2 = OAuth2(this)
     val loggedIn: Boolean = cookie != null
     val key: String = apiKey
-    val apiVersion: String = apiVersion
-    val accountIndex: Int = accountIndex
-
-    init {
-        this.player = player
-    }
-
-
 
     companion object {
 
@@ -93,13 +235,13 @@ class Session(
             lang: String = "",
             location: String = "",
             accountIndex: Int = 0,
-            visitorData: String = "",
+            visitorData: String? = "",
             enableSafetyMode: Boolean = false,
-            generateSessionLocally: Boolean = false,
+            generateSessionLocally: Boolean? = false,
             deviceCategory: DeviceCategory = DeviceCategory.DESKTOP,
             clientName: ClientType = ClientType.WEB,
             timezone: String = java.util.TimeZone.getDefault().id,
-            fetch: FetchFunction = Platform.shim.fetch,
+//            fetch: FetchFunction = Platform.shim.fetch,
             onBehalfOfUser: String? = null,
             cache: ICache? = null,
             enableSessionCache: Boolean = true,
@@ -156,7 +298,7 @@ class Session(
                     enableSafetyMode = enableSafetyMode
                 )
 
-                if (!generateSessionLocally) {
+                if (!generateSessionLocally!!) {
                     try {
                         val swSessionData = getSessionDataFromServer(sessionArgs, fetch)
                         apiKey = swSessionData.apiKey
